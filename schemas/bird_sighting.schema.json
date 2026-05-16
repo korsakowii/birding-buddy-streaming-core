@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BirdSightingRaw",
+  "type": "object",
+  "required": [
+    "event_id",
+    "user_id",
+    "species_code",
+    "common_name",
+    "location_id",
+    "lat",
+    "lng",
+    "event_time",
+    "count",
+    "confidence",
+    "source"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "user_id": { "type": "string", "minLength": 1 },
+    "species_code": { "type": "string", "minLength": 1 },
+    "common_name": { "type": "string" },
+    "location_id": { "type": "string", "minLength": 1 },
+    "lat": { "type": "number" },
+    "lng": { "type": "number" },
+    "event_time": { "type": "string", "format": "date-time" },
+    "count": { "type": "integer", "minimum": 0 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "source": { "type": "string" }
+  },
+  "additionalProperties": true
+}

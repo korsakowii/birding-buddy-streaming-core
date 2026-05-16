@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TargetSpeciesPreference",
+  "type": "object",
+  "required": [
+    "user_id",
+    "species_code",
+    "priority",
+    "radius_km",
+    "active",
+    "updated_at"
+  ],
+  "properties": {
+    "user_id": { "type": "string", "minLength": 1 },
+    "species_code": { "type": "string", "minLength": 1 },
+    "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+    "radius_km": { "type": "number", "minimum": 0 },
+    "active": { "type": "boolean" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}
