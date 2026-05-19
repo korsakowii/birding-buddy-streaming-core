@@ -1,6 +1,8 @@
-# Interview Talking Points
+# Operational tradeoffs
 
-## 2-minute project pitch
+Human-readable summary of design choices and FAQ-style prompts grounded in Birding Buddy Streaming Core.
+
+## Two-minute narrative overview
 
 “I built **Birding Buddy Streaming Core**, a small Kafka-style demo for a real-time birding intelligence product. Producers emit **bird sighting events** from the field—some are **late**, some are **duplicates** from retries, and some are **invalid** on purpose so I can show **data-quality routing**.
 
@@ -10,9 +12,9 @@
 
 “A third job maintains **user target species preferences**—think a broadcast dimension table—and joins sightings to emit **species alerts**, with **suppression** so users aren’t spammed within the same time/place bucket.
 
-“The code is Python for clarity, running on **Redpanda** locally, but I documented how each piece maps to **Flink** state, windows, and checkpoint offsets so interviewers can connect it to the stack they use.”
+“The code is Python for clarity, running on **Redpanda** locally, but I documented how each piece maps to **Flink** state, windows, and checkpoint offsets so reviewers can connect it to the stack they use.”
 
-## Q&A prompts (short answers)
+## FAQ-style prompts (short answers)
 
 ### Why Kafka?
 Durable log + replay + fan-out: one **clean sighting stream** feeds multiple independent consumers (hotspots vs alerts) without coupling their release cycles.
@@ -33,7 +35,7 @@ Pick keys that match **hot access patterns** and avoid skew when possible: **`lo
 Kafka often provides **at-least-once**; end-to-end **exactly-once** needs transactional patterns + **idempotent** processing. Talk honestly about **business-level idempotency**.
 
 ### How would you make it production-ready?
-Schema registry + contract tests, auth, key rotation, compaction for preference topics, exactly-once where needed, durable state stores, autoscaling, and **SLO dashboards** on lag + DLQ volume.
+Contract tests, auth, key rotation, compaction for preference topics, exactly-once where needed, durable state stores, autoscaling, and **SLO dashboards** on lag + DLQ volume.
 
-### How does this relate to AI data platform work?
-Streaming pipelines are how you keep **feature stores**, **training datasets**, and **online inference features** fresh; the hard parts are the same: **quality**, **late data**, **skew**, **replays**, and **governance**.
+### How does streaming relate to downstream analytics work?
+Streaming pipelines keep **derived datasets** and **online features** fresh; recurring engineering themes are **quality**, **late data**, **skew**, **replays**, and **governance**.

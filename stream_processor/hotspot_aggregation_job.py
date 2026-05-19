@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from stream_processor.kafka_io import json_deserializer, make_consumer, make_producer, produce_json
 from stream_processor.streaming_logic import (
+    hotspot_window_identity,
     parse_event_time,
     watermark_from_max_event_time,
     should_drop_or_route_late_event,
@@ -117,7 +118,7 @@ def main() -> None:
         species_code = str(record.get("species_code", ""))
         user_id = str(record.get("user_id", ""))
 
-        w_start, w_end = window_bounds_for_event_time(et)
+        _, w_end = window_bounds_for_event_time(et)
         wm = watermark_from_max_event_time(max_event_time, allowed_lateness)
         late_status = should_drop_or_route_late_event(et, w_end, wm, allowed_lateness)
 
@@ -140,7 +141,7 @@ def main() -> None:
             emit_completed_windows()
             continue
 
-        key: WindowKey = (location_id, species_code, w_start.isoformat().replace("+00:00", "Z"))
+        key: WindowKey = hotspot_window_identity(location_id, species_code, et)
         agg = windows.setdefault(key, WindowAgg())
         raw_count = record.get("count", 1)
         if isinstance(raw_count, int) and raw_count >= 0:

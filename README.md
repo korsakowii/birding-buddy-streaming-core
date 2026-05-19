@@ -7,6 +7,13 @@ This repo is a **small, runnable** data-engineering demo: synthetic field checkl
 
 **Concepts illustrated:** topic layering (raw / clean / DQ / DLQ), **partition keys**, **event-time** tumbling windows, **watermark-style** lateness handling, **stateful dedup**, **dimension-style** preferences, and **replay-aware** design (see table below).
 
+## What this proves (single-node MVP)
+
+This repository is a **local-first synthetic demo**: three Python consumer/producer loops against Redpanda, not a clustered Flink deployment. It proves **readable separation** of raw ingest, validated facts, operational telemetry, DLQ routing, windowed aggregates, and preference-driven alerts—with **`pytest`** covering pure validation/window/dedup helpers.
+
+- Example payloads: **`docs/sample_outputs.md`**  
+- Engineering rationale and boundaries: **`docs/streaming_concepts.md`**
+
 ---
 
 ## Architecture
@@ -159,7 +166,7 @@ docker exec -it birding-redpanda rpk topic consume data_quality_events -X broker
 docker exec -it birding-redpanda rpk topic consume dead_letter_events -X brokers=127.0.0.1:9092 -n 20 -f '%v\n'
 ```
 
-## Interview angles (deeper table)
+## Engineering tradeoffs (expanded)
 
 | Idea | One-liner |
 |------|-----------|
@@ -171,11 +178,11 @@ docker exec -it birding-redpanda rpk topic consume dead_letter_events -X brokers
 | Replay | Kafka offsets + at-least-once; dedup keys reduce double impact on replay. |
 | Backpressure | Lag grows if sinks slow; bounded poll intervals and flow control matter operationally. |
 
-Speaking notes: `docs/interview_talking_points.md`.
+Design discussion notes: `docs/operational_tradeoffs.md`.
 
 ## Production extensions
 
-This repo stops at a **single-node MVP**. For state TTL, checkpoints, schema registry, transactional sinks, lag/SLO monitoring, hot-key mitigation, real **radius** geojoins, and external providers (e.g. eBird-style feeds), see **`docs/production_hardening.md`**.
+This repo stops at a **single-node MVP**. For state TTL, checkpoints, transactional sinks, lag/SLO monitoring, hot-key mitigation, real **radius** geojoins, and external providers (e.g. eBird-style feeds), see **`docs/production_hardening.md`**.
 
 ## Tests
 
@@ -185,13 +192,15 @@ make test
 
 ## Documentation
 
+- `docs/sample_outputs.md` — synthetic example payloads per topic  
+- `docs/streaming_concepts.md` — design notes and explicit MVP boundary  
 - `docs/demo_walkthrough.md` — command-by-command walkthrough  
 - `docs/production_hardening.md` — production evolution  
 - `docs/architecture.md` — system narrative + diagrams  
 - `docs/kafka_topics.md` — per-topic contracts  
 - `docs/flink_concepts_mapping.md` — Flink mapping  
 - `docs/failure_scenarios.md` — failure modes  
-- `docs/interview_talking_points.md` — pitch + Q&A  
+- `docs/operational_tradeoffs.md` — operational tradeoffs + FAQ-style prompts  
 
 ## License
 

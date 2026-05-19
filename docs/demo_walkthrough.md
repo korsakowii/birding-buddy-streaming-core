@@ -1,4 +1,4 @@
-# Demo walkthrough (local, interview-ready)
+# Demo walkthrough (local synthetic run)
 
 This guide matches the **Makefile** and `scripts/run_demo.sh`. Run everything from the repo root: `birding-buddy-streaming-core/`.
 
@@ -130,7 +130,7 @@ make consume-dlq
 
 ---
 
-## How to say it in an interview (60 seconds)
+## Sixty-second verbal summary
 
 “I run synthetic birders into **raw** with realistic problems—**retries** duplicate `event_id`, **sync delays** create **late event-time**, and **garbage** hits validation. A **cleaning** job validates, **dedupes**, emits **quality signals**, and routes **dead letters**. **Hotspot** metrics use **event-time windows** with a simple **watermark minus lateness** policy. **Alerts** join sightings to a **preference changelog**—that’s my stand-in for **broadcast state**—and suppress repeats in the same place/time bucket. Kafka is the **durable log** so I can **replay** and scale consumers independently.”
 

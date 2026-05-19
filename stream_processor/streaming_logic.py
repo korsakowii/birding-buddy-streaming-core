@@ -65,6 +65,17 @@ def validate_raw_sighting(record: Mapping[str, Any]) -> Tuple[bool, list[Validat
 WINDOW_SECONDS = 15 * 60
 
 
+def hotspot_window_identity(
+    location_id: str,
+    species_code: str,
+    event_time_utc: datetime,
+    window_seconds: int = WINDOW_SECONDS,
+) -> Tuple[str, str, str]:
+    """Stable key for hotspot aggregation: (location_id, species_code, window_start_iso_Z)."""
+    w_start, _ = window_bounds_for_event_time(event_time_utc, window_seconds)
+    return (location_id, species_code, w_start.isoformat().replace("+00:00", "Z"))
+
+
 def window_bounds_for_event_time(event_time_utc: datetime, window_seconds: int = WINDOW_SECONDS) -> Tuple[datetime, datetime]:
     """Tumbling event-time window [start, end) in UTC, aligned to the epoch."""
     if event_time_utc.tzinfo is None:

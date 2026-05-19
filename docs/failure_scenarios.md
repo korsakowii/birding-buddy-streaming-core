@@ -1,6 +1,6 @@
-# Failure Scenarios (and how to talk about them)
+# Failure Scenarios (engineering discussion)
 
-Each scenario is phrased so you can answer “what breaks, what’s the risk, what do we do, what do I say in an interview.”
+Each scenario is phrased so you can answer: what breaks, what’s the risk, what mitigations apply, and what design tradeoffs matter.
 
 ## 1) Duplicate event caused by producer retry
 
@@ -10,7 +10,7 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Handling strategy:** **idempotent sink**, **keyed dedup state** with TTL, and/or **canonical store** (e.g., upsert to OLTP by `event_id`). Emit a `data_quality_events` signal for visibility.
 
-**Interview talking point:** *At-least-once is normal; exactly-once is a system property built from idempotent operations + barrier checkpoints—not a magic Kafka flag.*
+**Engineering takeaway:** *At-least-once is normal; exactly-once is a system property built from idempotent operations + barrier checkpoints—not a magic Kafka flag.*
 
 ## 2) Late bird sighting uploaded after a field trip
 
@@ -20,7 +20,7 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Handling strategy:** bounded **allowed lateness**, **side outputs** for too-late events, and separate “late refresh” batch jobs when business needs absolute completeness.
 
-**Interview talking point:** *watermarks are a completeness/latency trade-off; you pick policies per use case (dashboards vs billing vs science-grade datasets).*
+**Engineering takeaway:** *watermarks are a completeness/latency trade-off; you pick policies per use case (dashboards vs billing vs science-grade datasets).*
 
 ## 3) Invalid record due to missing `species_code`
 
@@ -30,7 +30,7 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Handling strategy:** validate early, route to **`dead_letter_events`**, metric the rate in **`data_quality_events`**, and alert the upstream team.
 
-**Interview talking point:** *treat validation as a product surface: DLQ volume is SLO-bearing.*
+**Engineering takeaway:** *treat validation as a product surface: DLQ volume is SLO-bearing.*
 
 ## 4) Popular hotspot causing skew
 
@@ -40,7 +40,7 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Handling strategy:** **salting** hot keys, **two-phase** aggregate (local combine + shuffle), **split** topics (raw vs regional), and monitoring **per-partition lag**.
 
-**Interview talking point:** *partitioning is a physical execution decision, not just a schema detail.*
+**Engineering takeaway:** *partitioning is a physical execution decision, not just a schema detail.*
 
 ## 5) Stream processor restart and replay
 
@@ -50,7 +50,7 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Handling strategy:** **checkpoint** state + offsets; idempotent producers; **upsert** sinks; design outputs with stable keys (`metric_id`, `alert_id`).
 
-**Interview talking point:** *replay is a feature—Kafka decouples reprocessing from the source systems, but only if your logic is replay-safe.*
+**Engineering takeaway:** *replay is a feature—Kafka decouples reprocessing from the source systems, but only if your logic is replay-safe.*
 
 ## 6) Slow sink causing backpressure
 
@@ -58,6 +58,6 @@ Each scenario is phrased so you can answer “what breaks, what’s the risk, wh
 
 **Risk:** rising lag, GC pressure, eventual consumer timeouts; unbounded in-memory growth in naive apps.
 
-**Handling strategy:** rate limit / bulk writers, autoscale Flink **task parallelism**, bounded buffers with **drop policies** only when explicitly allowed, and consumer tuning (`max.poll.interval.ms`, pause/resume).
+**Handling strategy:** rate limit / bulk writers, autoscale Flink **task parallelism**, bounded buffers with **drop policies** only when explicitly allowed, and consumer tuning (`max.poll.interval.ms`, partition pause when sinks stall).
 
-**Interview talking point:** *backpressure is how a healthy system says “slow down”; you need observability on lag and time-in-queue.*
+**Engineering takeaway:** *backpressure is how a healthy system says “slow down”; you need observability on lag and time-in-queue.*
