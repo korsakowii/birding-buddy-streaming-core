@@ -21,7 +21,7 @@ from typing import Any, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from stream_processor.kafka_io import default_bootstrap_servers, make_producer, produce_json
+_DEFAULT_BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:19092")
 
 
 SPECIES = [
@@ -97,8 +97,10 @@ def main() -> None:
     p.add_argument("--dup-rate", type=float, default=0.12, help="Probability of emitting a duplicate event_id.")
     p.add_argument("--late-rate", type=float, default=0.08, help="Probability of emitting a late-arriving record.")
     p.add_argument("--invalid-rate", type=float, default=0.07, help="Probability of emitting an invalid record.")
-    p.add_argument("--bootstrap", type=str, default=default_bootstrap_servers(), help="Kafka bootstrap servers.")
+    p.add_argument("--bootstrap", type=str, default=_DEFAULT_BOOTSTRAP, help="Kafka bootstrap servers.")
     args = p.parse_args()
+
+    from stream_processor.kafka_io import make_producer, produce_json
 
     os.environ["KAFKA_BOOTSTRAP_SERVERS"] = args.bootstrap
     producer = make_producer()

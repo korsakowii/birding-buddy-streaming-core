@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from stream_processor.sighting_cleaning_job import InMemoryDeduplicator
+from stream_processor.streaming_logic import InMemoryDeduplicator
 
 
 def test_dedup_first_observation_passes() -> None:

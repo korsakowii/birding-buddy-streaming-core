@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Mapping, Optional, Tuple
+from typing import Any, Mapping, Optional, Set, Tuple
 
 
 @dataclass(frozen=True)
@@ -129,3 +129,19 @@ def should_drop_or_route_late_event(
     if watermark <= event_time + max_lateness:
         return "within_lateness"
     return "late"
+
+
+class InMemoryDeduplicator:
+    """
+    Flink analog: keyed state per event_id.
+    Production: TTL + RocksDB state backend; replay still needs idempotent sinks or out-of-band dedup.
+    """
+
+    def __init__(self) -> None:
+        self._seen: Set[str] = set()
+
+    def is_duplicate(self, event_id: str) -> bool:
+        if event_id in self._seen:
+            return True
+        self._seen.add(event_id)
+        return False

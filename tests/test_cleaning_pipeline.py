@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from producer.generate_sightings import apply_invalid_variant, base_sighting
-from stream_processor.sighting_cleaning_job import InMemoryDeduplicator
+from stream_processor.streaming_logic import InMemoryDeduplicator
 
 from tests.cleaning_pipeline import cleaning_emission_bucket
 

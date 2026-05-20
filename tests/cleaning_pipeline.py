@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from stream_processor.sighting_cleaning_job import InMemoryDeduplicator
-from stream_processor.streaming_logic import validate_raw_sighting
+from stream_processor.streaming_logic import InMemoryDeduplicator, validate_raw_sighting
 
 
 def cleaning_emission_bucket(record: Mapping[str, Any], deduper: InMemoryDeduplicator) -> str:

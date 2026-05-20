@@ -1,11 +1,28 @@
 # Birding Buddy — Streaming Core
 
+[![CI](https://github.com/korsakowii/birding-buddy-streaming-core/actions/workflows/ci.yml/badge.svg)](https://github.com/korsakowii/birding-buddy-streaming-core/actions/workflows/ci.yml)
+
 **Bird sighting events → Kafka (Redpanda) → three stream jobs → metrics and alerts.**  
 This repo is a **small, runnable** data-engineering demo: synthetic field checklists exercise **event-time**, **state**, **windows**, **data quality**, and **joins**—without a generic “clickstream” story.
+
+## What this is / what it is not
+
+| Dimension | Description |
+|-----------|-------------|
+| **Is** | A **local**, **single-node** [Redpanda](https://redpanda.com/) (Kafka-compatible) streaming semantics demo: Python producers/consumers, synthetic birding topics, and `pytest` for pure helpers. |
+| **Is not** | Production **Apache Kafka** or **Apache Flink** operations—no cluster HA, no managed connectors, no exactly-once guarantee story beyond design notes. |
+| **Data** | **Synthetic only** (`user_*`, `loc_*`, generated species codes). No live checklist APIs, no real field observations, no credentials. |
 
 **Why a log / broker:** sightings are **async** (mobile/offline), **replayed** after code changes, and **fan out** to unrelated consumers (hotspot dashboards vs per-user alerts). Kafka-compatible storage decouples ingest from processing and makes **at-least-once + replay** explicit.
 
 **Concepts illustrated:** topic layering (raw / clean / DQ / DLQ), **partition keys**, **event-time** tumbling windows, **watermark-style** lateness handling, **stateful dedup**, **dimension-style** preferences, and **replay-aware** design (see table below).
+
+## Resume-safe summary (factual)
+
+- Built a **Kafka-compatible** (Redpanda) **event pipeline** with **topic layering** (raw → validated clean stream → metrics / alerts / DQ / DLQ).  
+- Implemented **validation**, **stateful `event_id` deduplication**, **15-minute event-time windows** with simplified **watermark/lateness** handling, and a **preference–sighting join** with alert suppression (Python MVP, maps to Flink patterns in docs).  
+- Added **unit tests** for validation, dedup, and window/lateness logic **without Docker**; optional Docker Compose loop for end-to-end synthetic produce/consume.  
+- **Scope:** teaching and prototype boundaries are documented explicitly—**not** a production streaming platform.
 
 ## What this proves (single-node MVP)
 
@@ -137,7 +154,8 @@ docker compose ps
 make list-topics
 ```
 
-Kafka API on the host: **`localhost:19092`**. Inside the container **`rpk` uses `127.0.0.1:9092`**.
+Kafka API on the host: **`localhost:19092`**. Inside the container **`rpk` uses `127.0.0.1:9092`**.  
+`make list-topics` only works when the `birding-redpanda` container is running (`make start`).
 
 ## Producers & processors
 
@@ -204,4 +222,4 @@ make test
 
 ## License
 
-MIT (add a `LICENSE` file if you publish publicly).
+[MIT](LICENSE)

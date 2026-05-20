@@ -12,38 +12,21 @@ from __future__ import annotations
 import os
 import signal
 import sys
-import time
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Optional, Set
+from typing import Any, Optional
 
 # Ensure repo root is importable when running `python stream_processor/sighting_cleaning_job.py`
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from stream_processor.kafka_io import json_deserializer, make_consumer, make_producer, produce_json
-from stream_processor.streaming_logic import validate_raw_sighting
+from stream_processor.streaming_logic import InMemoryDeduplicator, validate_raw_sighting
 
 
 TOPIC_IN = "bird_sightings_raw"
 TOPIC_CLEAN = "bird_sightings_clean"
 TOPIC_DLQ = "dead_letter_events"
 TOPIC_QUALITY = "data_quality_events"
-
-
-class InMemoryDeduplicator:
-    """
-    Flink analog: keyed state per event_id.
-    Production: TTL + RocksDB state backend; replay still needs idempotent sinks or out-of-band dedup.
-    """
-
-    def __init__(self) -> None:
-        self._seen: Set[str] = set()
-
-    def is_duplicate(self, event_id: str) -> bool:
-        if event_id in self._seen:
-            return True
-        self._seen.add(event_id)
-        return False
 
 
 def main() -> None:
